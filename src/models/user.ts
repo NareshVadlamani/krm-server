@@ -2,11 +2,13 @@ import { json } from "express";
 import { model, Schema, Types } from "mongoose";
 import { AddressSchema } from "./Address";
 import { IUser } from "../types";
+const bcrypt = require("bcryptjs");
 
 const user = new Schema({
   name: { type: String, required: true },
   email: { type: String, required: true },
   address: { type: AddressSchema },
+  password: { type: String, required: true },
 });
 
 export default class User {
@@ -27,11 +29,14 @@ export default class User {
       name: user.name,
       email: user.email,
       address: user.address,
+      password: user.password,
     });
-    await userModel.save();
+    const savedUser = await userModel.save();
+
+    return savedUser;
   }
 
-  async findById(email: string) {
+  async findByEmail(email: string) {
     const data = await this.UserClc.find({ email });
     return data;
   }
@@ -41,5 +46,13 @@ export default class User {
       new: true,
     });
     return data;
+  }
+
+  async comparePassword(email: string, password: string) {
+    const user = await this.UserClc.findOne({ email });
+    if (!user) throw new Error("user.not.found");
+    // Assuming password is hashed using bcrypt
+    const isMatch = await bcrypt.compare(password, user.password);
+    return isMatch;
   }
 }

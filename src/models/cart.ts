@@ -37,4 +37,19 @@ export default class Cart {
     }
     return cart;
   }
+
+  async updateCart({ cartId, items }) {
+    if (!Types.ObjectId.isValid(cartId)) {
+      throw new Error("cart.invalid.id");
+    }
+    const updatedCart = await this.CartClc.findByIdAndUpdate(
+      cartId,
+      { items },
+      { new: true }
+    );
+    if (!updatedCart) {
+      throw new Error("cart.not.found");
+    }
+    return updatedCart;
+  }
 }

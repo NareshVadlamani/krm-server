@@ -16,3 +16,14 @@ export async function addToCart({ userId, items }) {
   });
   return cartList;
 }
+
+export async function updateCart({ cartId, items }) {
+  if (!Types.ObjectId.isValid(cartId)) {
+    return { err: "invalid cart id" };
+  }
+  const updatedCart = await Mongo.cart.updateCart({
+    cartId,
+    items,
+  });
+  return updatedCart;
+}
