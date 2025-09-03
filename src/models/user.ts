@@ -1,12 +1,12 @@
 import { json } from "express";
 import { model, Schema, Types } from "mongoose";
-const hobbyId = {
-  id: { type: Schema.Types.ObjectId, ref: "Hobby" },
-};
+import { AddressSchema } from "./Address";
+import { IUser } from "../types";
 
 const user = new Schema({
   name: { type: String, required: true },
-  hobbies: [hobbyId],
+  email: { type: String, required: true },
+  address: { type: AddressSchema },
 });
 
 export default class User {
@@ -20,35 +20,26 @@ export default class User {
     else throw new Error(`no.user.found.`);
   }
 
-  async addUser(userName: string) {
+  async addUser(user: IUser) {
     const _id = new Types.ObjectId();
-    const userModel = new this.UserClc({ _id, name: userName, hobbies: [] });
+    const userModel = new this.UserClc({
+      _id,
+      name: user.name,
+      email: user.email,
+      address: user.address,
+    });
     await userModel.save();
   }
 
-  async findById(id: string) {
-    const data = await this.UserClc.find({ _id: id });
+  async findById(email: string) {
+    const data = await this.UserClc.find({ email });
     return data;
   }
 
-  async updateUserHobbies(_id: string, hobbyId: string) {
-    this.UserClc.findOneAndUpdate(
-      { _id },
-      {
-        $push: {
-          hobbies: hobbyId,
-        },
-      },
-      {
-        new: true,
-      },
-      (err, res) => {
-        if (err) {
-          console.log("Error.updateUserHobbies", err);
-        } else {
-          console.log("hobby added to the user");
-        }
-      }
-    );
+  async updateUser(email: string, user: IUser) {
+    const data = await this.UserClc.findOneAndUpdate({ email }, user, {
+      new: true,
+    });
+    return data;
   }
 }

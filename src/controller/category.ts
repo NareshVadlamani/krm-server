@@ -1,9 +1,7 @@
 import express, { Request, Response } from "express";
 import { jaction } from "../utils/express-utils";
-
-import { Types } from "mongoose";
-import Mongo from "../models/mongo";
 import { ICategory } from "../types";
+import * as categoryService from "../service/category";
 
 export function getCategoryRouter() {
   return express
@@ -13,26 +11,90 @@ export function getCategoryRouter() {
     .post("/add-category", jaction(addCategory));
 }
 
+/**
+ * @swagger
+ * /category/list/{id}:
+ *  get:
+ *   tags:
+ *    - Categories
+ *   summary: API to get category by ID
+ *   description: API to get category by ID
+ *   parameters:
+ *    - in: path
+ *      name: id
+ *      required: true
+ *      description: Category ID
+ *      schema:
+ *       type: string
+ *   responses:
+ *    200:
+ *     description: success
+ *    500:
+ *     description: error
+ */
+
 export async function getCategoryById(req: Request, res: Response) {
   const { id } = req.params;
-  if (!Types.ObjectId.isValid(id)) {
-    return { err: "invalid category id" };
-  }
-  const category = await Mongo.category.getCategoryById(id);
-  return { res: category };
+  const result = await categoryService.getCategoryById(id);
+  return result;
 }
 
-export async function getCategories() {
-  const userList = await Mongo.category.getAllCategories();
-  return { res: userList };
+/**
+ * @swagger
+ * /category/list:
+ *  get:
+ *   tags:
+ *    - Categories
+ *   summary: API to get category list
+ *   description: API to get category list
+ *   responses:
+ *    200:
+ *     description: success
+ *    500:
+ *     description: error
+ */
+
+export async function getCategories(req: Request, res: Response) {
+  const result = await categoryService.getCategories();
+  return result;
 }
+
+/**
+ * @swagger
+ * /category/add:
+ *  post:
+ *   tags:
+ *    - Categories
+ *   summary: API to add a new category
+ *   description: API to add a new category
+ *   requestBody:
+ *    required: true
+ *    content:
+ *     application/json:
+ *      schema:
+ *       type: object
+ *       properties:
+ *        name:
+ *         type: string
+ *        index:
+ *         type: integer
+ *        subCategories:
+ *         type: array
+ *         items:
+ *          type: string
+ *   responses:
+ *    200:
+ *     description: success
+ *    500:
+ *     description: error
+ */
 
 export async function addCategory(req: Request, res: Response) {
   const { name, index, subCategories } = req.body as ICategory;
-  const categoryList = await Mongo.category.addCategory({
+  const result = await categoryService.addCategory({
     name,
     index,
     subCategories,
   });
-  return categoryList;
+  return result;
 }

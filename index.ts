@@ -9,6 +9,8 @@ import { getUserRouter } from "./src/controller/user";
 import { getCategoryRouter } from "./src/controller/category";
 import { getHomeRouter } from "./src/controller/home";
 import { getProductRouter } from "./src/controller/product";
+import { getCartRouter } from "./src/controller/cart";
+import { getOrderRouter } from "./src/controller/order";
 
 const swaggerOptions = {
   definition: {
@@ -40,6 +42,8 @@ async function main() {
     .use("/user", getUserRouter())
     .use("/category", getCategoryRouter())
     .use("/product", getProductRouter())
+    .use("/cart", getCartRouter())
+    .use("/order", getOrderRouter())
     .use("/api", swaggerUi.serve, swaggerUi.setup(swaggerDocs))
     .use(xp.notFound)
     .listen(config.port, () => {
